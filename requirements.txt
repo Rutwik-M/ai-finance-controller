@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+pydantic
+psycopg2-binary
+pandas
+rapidfuzz
+structlog
+pytest
+hypothesis
+python-dotenv
+httpx
+streamlit
+tenacity
+plotly
+fastapi
+uvicorn
