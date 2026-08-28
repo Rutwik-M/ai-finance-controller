@@ -30,18 +30,7 @@ services:
       db:
         condition: service_healthy
 
-  streamlit:
-    build: .
-    command: streamlit run app/main.py --server.port=8501 --server.address=0.0.0.0
-    ports:
-      - "8501:8501"
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgrespassword@db:5432/settlement_reconciliation
-    volumes:
-      - .:/app
-    depends_on:
-      db:
-        condition: service_healthy
+
 
   dashboard:
     build: ./dashboard
