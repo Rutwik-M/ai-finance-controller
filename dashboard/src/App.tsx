@@ -27,6 +27,8 @@ type Exception = {
   created_at: string;
   amount: number;
   reference_date: string;
+  raw_reference: string;
+  action_recommended?: any;
 };
 
 type AuditLog = {
@@ -406,6 +408,45 @@ export default function App() {
 
                   {expandedRow === exc.id && (
                     <div className="px-6 pb-6 pt-4 border-t border-slate-100 bg-slate-50">
+                      {exc.action_recommended && (
+                        <div className="mb-8 bg-white border border-indigo-200 rounded-xl overflow-hidden shadow-sm">
+                           <div className="bg-indigo-50 px-4 py-3 border-b border-indigo-100 flex items-center justify-between">
+                             <div className="flex items-center gap-2 text-indigo-800 font-semibold text-sm">
+                               <Activity className="w-4 h-4" /> Recommended Recovery Action (Closing the Loop)
+                             </div>
+                             <span className="text-xs font-mono bg-indigo-100 text-indigo-700 px-2 py-1 rounded">ORCHESTRATOR</span>
+                           </div>
+                           <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                             <div>
+                               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Action Type</p>
+                               <div className="inline-block bg-slate-100 text-slate-700 font-medium text-sm px-3 py-1 rounded-md">
+                                 {exc.action_recommended.action_type === 'slack_alert' ? '💬 Slack Ping (Internal)' : 
+                                  exc.action_recommended.action_type === 'email_merchant' ? '📧 Email Merchant (External)' : 
+                                  '📓 Ledger Adjustment (Auto)'}
+                               </div>
+                             </div>
+                             <div>
+                               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">AI Reasoning</p>
+                               <p className="text-sm text-slate-700 italic">"{exc.action_recommended.reasoning}"</p>
+                             </div>
+                             <div className="md:col-span-2 mt-2">
+                               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Generated System Payload (JSON)</p>
+                               <div className="bg-slate-800 text-emerald-400 font-mono text-xs p-3 rounded-lg overflow-x-auto shadow-inner">
+                                 <pre>{JSON.stringify(exc.action_recommended.action_payload, null, 2)}</pre>
+                               </div>
+                             </div>
+                           </div>
+                           <div className="bg-slate-50 px-4 py-3 border-t border-slate-100 flex justify-end gap-3">
+                              <button className="text-slate-600 hover:text-slate-800 text-sm font-semibold px-4 py-2 transition-colors">
+                                Dismiss
+                              </button>
+                              <button className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm transition-colors flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4" /> Execute Action
+                              </button>
+                           </div>
+                        </div>
+                      )}
+
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div className="space-y-4">
                           <h5 className="text-xs uppercase tracking-wider font-semibold text-rzp-textmuted flex items-center gap-2">

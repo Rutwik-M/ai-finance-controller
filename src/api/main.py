@@ -65,7 +65,7 @@ def get_exceptions():
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("""
-            SELECT e.id, e.record_id, e.reason, e.detail, e.created_at, r.amount, r.reference_date, r.raw_reference
+            SELECT e.id, e.record_id, e.reason, e.detail, e.created_at, r.amount, r.reference_date, r.raw_reference, e.action_recommended
             FROM exceptions e
             JOIN records r ON e.record_id = r.id
             WHERE e.status = 'open'
@@ -89,7 +89,8 @@ def get_exceptions():
                 "created_at": str(row[4]),
                 "amount": float(row[5]) if row[5] else None,
                 "reference_date": str(row[6]),
-                "raw_reference": row[7]
+                "raw_reference": row[7],
+                "action_recommended": row[8] if isinstance(row[8], dict) else json.loads(row[8]) if row[8] else None
             })
             
         cur.close()

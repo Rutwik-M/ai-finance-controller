@@ -45,6 +45,9 @@ create table if not exists audit_log (
     created_at   timestamptz not null default now()
 );
 
+alter table exceptions add column if not exists action_recommended jsonb;
+
+
 create table if not exists ground_truth (
     id              uuid primary key default gen_random_uuid(),
     record_ids      uuid[] not null,

@@ -2,6 +2,7 @@ import sys
 from .deterministic import run_deterministic_matching
 from .fuzzy import run_fuzzy_matching
 from .llm import resolve_with_llm
+from .orchestrator import run_orchestrator
 
 def main():
     print("=== Stage 1: Deterministic Matching ===")
@@ -17,6 +18,9 @@ def main():
         print("\n=== Stage 3: LLM-Assisted Matching ===")
         print("No ambiguous candidates to send to LLM.")
         
+    print("\n=== Stage 4: Agentic Orchestrator (Action Recovery) ===")
+    run_orchestrator()
+    
     print("\nMatching pipeline complete.")
 
 if __name__ == "__main__":
