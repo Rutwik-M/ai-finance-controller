@@ -10,8 +10,8 @@ _current_key_idx = 0
 async def _call_llm_async(client, api_keys, payload):
     global _current_key_idx
     async for attempt in AsyncRetrying(
-        stop=stop_after_attempt(5),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
+        stop=stop_after_attempt(6),
+        wait=wait_exponential(multiplier=2, min=5, max=60),
         retry=retry_if_exception_type(httpx.HTTPStatusError),
         reraise=True
     ):
@@ -104,13 +104,24 @@ async def process_exception(exc, api_keys, db_url, semaphore, client):
             return {"exc_id": exc_id, "status": "error", "error": str(e)}
 
 async def _run_orchestrator_batch(exceptions, api_keys, db_url):
-    concurrency_limit = 5 if len(api_keys) == 1 else 10
+    # Keep concurrency low to avoid hitting Groq rate limits
+    concurrency_limit = 2
     semaphore = asyncio.Semaphore(concurrency_limit)
     limits = httpx.Limits(max_keepalive_connections=concurrency_limit, max_connections=concurrency_limit)
     
-    async with httpx.AsyncClient(limits=limits, timeout=60.0) as client:
-        tasks = [process_exception(exc, api_keys, db_url, semaphore, client) for exc in exceptions]
-        return await asyncio.gather(*tasks)
+    async with httpx.AsyncClient(limits=limits, timeout=90.0) as client:
+        results = []
+        # Process in small sequential batches to stay within rate limits
+        batch_size = 2
+        for i in range(0, len(exceptions), batch_size):
+            batch = exceptions[i:i + batch_size]
+            tasks = [process_exception(exc, api_keys, db_url, semaphore, client) for exc in batch]
+            batch_results = await asyncio.gather(*tasks)
+            results.extend(batch_results)
+            # Stagger batches to respect Groq's RPM limits
+            if i + batch_size < len(exceptions):
+                await asyncio.sleep(3)
+        return results
 
 def run_orchestrator():
     api_keys = []
