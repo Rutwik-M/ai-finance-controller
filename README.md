@@ -30,6 +30,11 @@ When exceptions occur, it doesn't just flag them—an **Action Orchestrator** ag
 
 ---
 
+---
+![Settlement Reconciliation Agent Architecture Diagram](architecture_diagram.png)
+
+---
+
 ## 🚀 Getting Started
 
 ### 1. Initial Setup
